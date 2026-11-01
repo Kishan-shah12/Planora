@@ -1,0 +1,8 @@
+dist
+coverage
+node_modules
+package-lock.json
+.claude
+CLAUDE.md
+BUILD_PROMPTS.md
+README.md
