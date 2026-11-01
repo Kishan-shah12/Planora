@@ -1,15 +1,47 @@
 """Vercel serverless function entrypoint for Planora."""
 from __future__ import annotations
 
+import os
 import sys
+import traceback
 from pathlib import Path
 
-# Ensure project root is in sys.path so 'app' and 'wsgi' modules resolve correctly
+# Ensure project root is in sys.path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from wsgi import app
+init_error: str | None = None
+flask_app = None
 
-# Export for Vercel WSGI runtime
+try:
+    from app import create_app
+
+    template_dir = os.path.abspath(os.path.join(ROOT_DIR, "app", "templates"))
+    static_dir = os.path.abspath(os.path.join(ROOT_DIR, "app", "static"))
+
+    flask_app = create_app()
+    flask_app.template_folder = template_dir
+    flask_app.static_folder = static_dir
+except Exception:
+    init_error = traceback.format_exc()
+
+
+def app(environ, start_response):
+    if init_error:
+        status = "500 Internal Server Error"
+        response_headers = [("Content-Type", "text/plain; charset=utf-8")]
+        start_response(status, response_headers)
+        return [f"Startup Initialization Error:\n\n{init_error}".encode("utf-8")]
+    try:
+        return flask_app(environ, start_response)
+    except Exception:
+        status = "500 Internal Server Error"
+        response_headers = [("Content-Type", "text/plain; charset=utf-8")]
+        start_response(status, response_headers)
+        return [f"Runtime Execution Error:\n\n{traceback.format_exc()}".encode("utf-8")]
+
+
+# Handlers for Vercel WSGI detection
 handler = app
+application = app

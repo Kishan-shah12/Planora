@@ -1,7 +1,12 @@
 """Calendar export service creating standard RFC 5545 iCalendar (.ics) files."""
 from __future__ import annotations
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
+try:
+    from datetime import UTC
+except ImportError:
+    from datetime import timezone
+    UTC = timezone.utc
 
 from .models import PlanResult
 
