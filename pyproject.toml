@@ -9,6 +9,14 @@ description = "Planora: GenAI-powered and deterministic celebration planner"
 readme = "README.md"
 requires-python = ">=3.9"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["api*", "tests*"]
+
+[tool.setuptools.package-data]
+app = ["prompts/*", "templates/*", "static/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
