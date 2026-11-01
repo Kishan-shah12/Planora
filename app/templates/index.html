@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planora — GenAI &amp; Deterministic Celebration Planner</title>
+  <meta name="description" content="Intelligent celebration planning for weddings, birthdays, and community gatherings with exact rupee budget allocation, adaptive timelines, vendor checklists, and GenAI ideas.">
+  <meta name="color-scheme" content="light dark">
+  
+  <script>
+    (function(){try{var s=localStorage.getItem("planora_theme"),d=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",s||(d?"dark":"light"))}catch(e){}})();
+  </script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
+  </noscript>
+  
+  <style>
+:root{--font-heading: "Playfair Display", Georgia, serif;--font-body: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;--bg-page: #FAF7F2;--bg-card: #FFFFFF;--bg-card-subtle: #F5EFEB;--bg-hover: #EFE8E2;--text-main: #1C2621;--text-muted: #3E4D46;--text-subtle: #415149;--primary: #0B4632;--primary-hover: #083425;--primary-light: #E7F3EE;--primary-border: #BCD8CD;--accent-gold: #C5A059;--accent-gold-text: #855C0E;--accent-gold-light: #FAF5EB;--accent-gold-border: #E8D6B0;--accent-terracotta: #A93E18;--accent-terracotta-light: #FDF1ED;--danger: #B91C1C;--danger-light: #FEE2E2;--success: #15803D;--success-light: #DCFCE7;--warning: #B45309;--warning-light: #FEF3C7;--border: #E5DCD3;--border-focus: #0B4632;--radius-sm: 6px;--radius-md: 10px;--radius-lg: 16px;--radius-full: 9999px;--shadow-sm: 0 1px 3px rgba(11, 70, 50, .05);--shadow-md: 0 4px 16px -2px rgba(11, 70, 50, .08), 0 2px 6px -1px rgba(0, 0, 0, .04);--shadow-lg: 0 10px 30px -4px rgba(11, 70, 50, .12), 0 4px 10px -2px rgba(0, 0, 0, .04);--transition-fast: .15s ease;--transition-normal: .25s ease}[data-theme=dark]{--bg-page: #0E1411;--bg-card: #151D18;--bg-card-subtle: #1C2620;--bg-hover: #233129;--text-main: #F2F7F4;--text-muted: #B4C4BC;--text-subtle: #B8C6BE;--primary: #2DD4BF;--primary-hover: #14B8A6;--primary-light: #0B332B;--primary-border: #134E48;--accent-gold: #E5C378;--accent-gold-text: #FDE08A;--accent-gold-light: #2A2315;--accent-gold-border: #4A3E25;--accent-terracotta: #FB923C;--accent-terracotta-light: #301E14;--danger: #F87171;--danger-light: #3B1616;--success: #4ADE80;--success-light: #143521;--warning: #FBBF24;--warning-light: #36290E;--border: #27362E;--border-focus: #2DD4BF;--shadow-sm: 0 1px 3px rgba(0, 0, 0, .3);--shadow-md: 0 4px 16px -2px rgba(0, 0, 0, .4);--shadow-lg: 0 10px 30px -4px rgba(0, 0, 0, .5)}*,*:before,*:after{box-sizing:border-box;margin:0;padding:0}html{font-size:16px;scroll-behavior:smooth;scroll-padding-top:5rem}body{font-family:var(--font-body);background-color:var(--bg-page);color:var(--text-main);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}:focus-visible{outline:2px solid var(--border-focus);outline-offset:3px}.skip-link{position:absolute;top:-100px;left:1rem;background:var(--primary);color:#fff;padding:.75rem 1.25rem;border-radius:var(--radius-sm);font-weight:600;z-index:1000;text-decoration:none;transition:top var(--transition-fast)}.skip-link:focus{top:1rem}.container{width:100%;max-width:1200px;margin:0 auto;padding:0 1.25rem}.hero{background:linear-gradient(180deg,var(--bg-card-subtle) 0%,var(--bg-page) 100%);border-bottom:1px solid var(--border);padding:2rem 0 2.5rem}.hero-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.875rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--primary)}.badge-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-terracotta);animation:pulse-dot 2s infinite ease-in-out}@keyframes pulse-dot{0%,to{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}.theme-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:44px;height:44px;border-radius:var(--radius-full);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.25rem;box-shadow:var(--shadow-sm);transition:background var(--transition-fast),border-color var(--transition-fast)}.theme-btn:hover{background:var(--bg-hover);border-color:var(--primary)}h1{font-family:var(--font-heading);font-size:clamp(2rem,4vw + 1rem,3.25rem);font-weight:700;line-height:1.15;color:var(--primary);margin-bottom:.75rem}.tagline{font-size:clamp(1rem,1.5vw + .5rem,1.2rem);color:var(--text-muted);max-width:780px;margin-bottom:1.5rem}.hero-badges{display:flex;flex-wrap:wrap;gap:.75rem;list-style:none}.hero-badges li{display:inline-flex;align-items:center;gap:.4rem;background:var(--bg-card);border:1px solid var(--border);padding:.4rem .85rem;border-radius:var(--radius-full);font-size:.875rem;font-weight:500;color:var(--text-main);box-shadow:var(--shadow-sm)}.layout{padding:2.5rem 0 4rem;flex:1}.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;box-shadow:var(--shadow-md);margin-bottom:2rem}.form-header{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.75rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem}@media(min-width:768px){.form-header{flex-direction:row;justify-content:space-between;align-items:center}}.form-header h2{font-family:var(--font-heading);font-size:1.75rem;color:var(--text-main)}.preset-container{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}.preset-title{font-size:.875rem;font-weight:600;color:var(--text-muted)}.preset-chip{background:var(--bg-card-subtle);border:1px solid var(--border);color:var(--text-main);padding:.4rem .85rem;border-radius:var(--radius-full);font-size:.85rem;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;transition:all var(--transition-fast)}.preset-chip:hover{background:var(--primary-light);border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}.type-selector-legend{font-weight:600;font-size:1.05rem;margin-bottom:.75rem;color:var(--text-main)}.type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem}.type-card{position:relative;border:2px solid var(--border);border-radius:var(--radius-md);padding:1.25rem;cursor:pointer;transition:all var(--transition-fast);background:var(--bg-card-subtle);display:block}.type-card:hover{border-color:var(--primary-border);background:var(--bg-card)}.type-card input[type=radio]{position:absolute;top:1rem;right:1rem;accent-color:var(--primary);width:1.25rem;height:1.25rem}.type-card:has(input[type=radio]:checked){border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 1px var(--primary)}.type-icon{font-size:2rem;margin-bottom:.5rem;display:block}.type-name{font-weight:700;font-size:1.1rem;color:var(--text-main);display:block}.type-desc{font-size:.85rem;color:var(--text-muted);display:block;margin-top:.25rem}.field{margin-bottom:1.5rem}.field-grid{display:grid;grid-template-columns:1fr;gap:1.25rem;margin-bottom:1.5rem}@media(min-width:640px){.field-grid{grid-template-columns:repeat(2,1fr)}}@media(min-width:1024px){.field-grid{grid-template-columns:repeat(4,1fr)}}label{display:block;font-weight:600;font-size:.95rem;margin-bottom:.4rem;color:var(--text-main)}input[type=text],input[type=number],input[type=date],textarea{width:100%;padding:.75rem .9rem;font-size:1rem;font-family:inherit;color:var(--text-main);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}input:focus,textarea:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px var(--primary-light);outline:none}input[aria-invalid=true],textarea[aria-invalid=true]{border-color:var(--danger);background:var(--danger-light)}.hint{font-size:.825rem;color:var(--text-muted);margin-top:.35rem}.error-text{font-size:.85rem;color:var(--danger);font-weight:500;margin-top:.35rem}.error-summary{background:var(--danger-light);border:2px solid var(--danger);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1.5rem}.error-summary h3{font-size:1.1rem;color:var(--danger);margin-bottom:.5rem}.error-summary ul{padding-left:1.25rem}.error-summary a{color:var(--danger);font-weight:600;text-decoration:underline}.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem 1.75rem;font-size:1rem;font-weight:600;font-family:inherit;border-radius:var(--radius-md);cursor:pointer;border:1px solid transparent;transition:all var(--transition-fast);text-decoration:none;min-height:48px}.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover:not(:disabled){background:var(--primary-hover);transform:translateY(-1px);box-shadow:var(--shadow-sm)}.btn-secondary{background:var(--bg-card);color:var(--text-main);border-color:var(--border)}.btn-secondary:hover:not(:disabled){background:var(--bg-hover);border-color:var(--text-subtle)}.btn:disabled{opacity:.65;cursor:not-allowed}.results-header{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem}@media(min-width:768px){.results-header{flex-direction:row;justify-content:space-between;align-items:center}}.results-header h2{font-family:var(--font-heading);font-size:2rem;color:var(--primary)}.results-meta{font-size:1rem;color:var(--text-muted)}.results-actions{display:flex;flex-wrap:wrap;gap:.75rem}.ai-source-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--accent-gold-light);border:1px solid var(--accent-gold-border);color:var(--accent-gold-text);font-weight:600;font-size:.875rem;padding:.5rem 1rem;border-radius:var(--radius-full);margin-bottom:1.5rem}.advisory-box{background:var(--warning-light);border-left:4px solid var(--warning);padding:1rem 1.25rem;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-bottom:1.75rem}.advisory-box p{font-size:.95rem;color:var(--text-main);margin-bottom:.35rem}.advisory-box p:last-child{margin-bottom:0}.plan-nav{display:flex;flex-wrap:wrap;gap:.5rem;background:var(--bg-card-subtle);padding:.5rem;border-radius:var(--radius-md);margin-bottom:2rem;position:sticky;top:1rem;z-index:50;backdrop-filter:blur(8px);border:1px solid var(--border)}.plan-nav a{padding:.5rem 1rem;color:var(--text-muted);text-decoration:none;font-size:.9rem;font-weight:600;border-radius:var(--radius-sm);transition:all var(--transition-fast)}.plan-nav a:hover{color:var(--text-main);background:var(--bg-hover)}.plan-nav a[aria-current=true]{background:var(--primary);color:#fff}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}.stat-box{background:var(--bg-card-subtle);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.25rem;text-align:center}.stat-box.highlight{background:var(--primary-light);border-color:var(--primary-border)}.stat-label{font-size:.85rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);letter-spacing:.05em;margin-bottom:.35rem}.stat-value{font-size:1.6rem;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums}.table-responsive{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:1.5rem;border:1px solid var(--border);border-radius:var(--radius-md)}table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:.85rem 1rem;border-bottom:1px solid var(--border);font-size:.95rem}th{background:var(--bg-card-subtle);font-weight:600;color:var(--text-muted)}.text-right{text-align:right}.table-bar-bg{width:100%;height:8px;background:var(--border);border-radius:var(--radius-full);overflow:hidden;margin-top:.4rem}.table-bar-fill{height:100%;background:var(--primary);border-radius:var(--radius-full);transition:width .6s cubic-bezier(.16,1,.3,1)}.ledger-card{background:var(--bg-card-subtle);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.5rem;margin-top:1.5rem}.ledger-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;margin-bottom:1.25rem}.ledger-item{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem}.ledger-item h4{font-size:.85rem;color:var(--text-muted);margin-bottom:.25rem}.ledger-item .val{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums}.val-positive{color:var(--success)}.val-negative{color:var(--danger)}.timeline-list{list-style:none;position:relative;padding-left:2rem;margin:1.5rem 0}.timeline-list:before{content:"";position:absolute;left:.75rem;top:.5rem;bottom:.5rem;width:2px;background:var(--border)}.timeline-item{position:relative;margin-bottom:1.5rem;padding-bottom:.5rem}.timeline-item:after{content:"";position:absolute;left:-2rem;top:.35rem;width:1rem;height:1rem;border-radius:50%;background:var(--bg-card);border:2px solid var(--primary);box-shadow:0 0 0 3px var(--bg-card)}.timeline-item.urgent:after{border-color:var(--accent-terracotta);background:var(--accent-terracotta)}.timeline-item.event-day:after{border-color:var(--accent-gold);background:var(--accent-gold);transform:scale(1.3)}.timeline-date{font-size:.85rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem}.timeline-task{font-weight:600;font-size:1.05rem;color:var(--text-main)}.timeline-meta{display:inline-flex;gap:.5rem;margin-top:.35rem}.badge{display:inline-block;padding:.2rem .5rem;border-radius:var(--radius-full);font-size:.75rem;font-weight:600}.badge-critical{background:var(--danger-light);color:var(--danger)}.badge-urgent{background:var(--accent-terracotta-light);color:var(--accent-terracotta)}.badge-normal{background:var(--bg-card-subtle);color:var(--text-muted)}.checklist-progress-container{margin-bottom:1.5rem}.checklist-bar-bg{width:100%;height:12px;background:var(--bg-card-subtle);border:1px solid var(--border);border-radius:var(--radius-full);overflow:hidden;margin-bottom:.5rem}.checklist-bar-fill{height:100%;background:var(--success);border-radius:var(--radius-full);transition:width .3s ease}.vendor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem}.vendor-card{background:var(--bg-card-subtle);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.25rem}.vendor-card h4{font-family:var(--font-heading);font-size:1.15rem;color:var(--primary);margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem}.task-list{list-style:none}.task-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border)}.task-item:last-child{border-bottom:none}.task-item input[type=checkbox]{width:1.2rem;height:1.2rem;margin-top:.2rem;accent-color:var(--primary);cursor:pointer}.task-item.completed span{text-decoration:line-through;color:var(--text-subtle)}.task-content{flex:1}.task-title{font-weight:600;font-size:.95rem;color:var(--text-main);display:block}.task-desc{font-size:.825rem;color:var(--text-muted);margin-top:.2rem;display:block}.idea-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;margin-bottom:2rem;list-style:none}.idea-card{background:var(--bg-card-subtle);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.25rem;display:flex;flex-direction:column}.idea-card h4{font-size:1.05rem;font-weight:700;color:var(--primary);margin-bottom:.5rem}.idea-card p{font-size:.9rem;color:var(--text-muted);flex:1}.tips-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}.tip-item{background:var(--accent-gold-light);border:1px solid var(--accent-gold-border);border-radius:var(--radius-md);padding:1rem;font-size:.9rem;color:var(--text-main);display:flex;gap:.6rem;align-items:flex-start}.site-footer{border-top:1px solid var(--border);padding:2rem 0;margin-top:auto;text-align:center;font-size:.875rem;color:var(--text-muted)}.footer-disclaimer{margin-top:.5rem;font-size:.85rem;color:var(--text-muted);line-height:1.5}@media print{body{background:#fff!important;color:#000!important;font-size:11pt}.skip-link,.hero-top,.preset-container,#form-card,.results-actions,.plan-nav,.site-footer,.theme-btn{display:none!important}.card{border:none!important;box-shadow:none!important;padding:0!important;margin-bottom:1.5rem!important}.table-responsive{overflow:visible!important;border:none!important}table{border:1px solid #CCCCCC!important}th,td{padding:6pt 8pt!important;border-bottom:1px solid #CCCCCC!important;color:#000!important}.table-bar-bg{display:none!important}.timeline-list:before{background:#ccc!important}.timeline-item:after{border-color:#000!important;background:#fff!important}.badge{border:1px solid #888888!important;background:none!important;color:#000!important}h1,h2,h3,h4{color:#000!important;page-break-after:avoid}.vendor-grid,.idea-grid{display:block!important}.vendor-card,.idea-card{page-break-inside:avoid;margin-bottom:1rem!important;border:1px solid #CCCCCC!important}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="hero">
+    <div class="container hero-inner">
+      <div class="hero-top">
+        <p class="eyebrow"><span class="badge-dot" aria-hidden="true"></span> Planora &bull; Intelligent Event Architect</p>
+        <button type="button" id="theme-btn" class="theme-btn" aria-pressed="false" aria-label="Toggle dark theme" title="Toggle dark theme">
+          <span id="theme-icon" aria-hidden="true">&#9790;</span>
+        </button>
+      </div>
+      <h1>Celebration &amp; Event Planner</h1>
+      <p class="tagline">Organize extraordinary weddings, birthdays, and community festivals with exact largest-remainder rupee budgets, adaptive milestone timelines, interactive vendor checklists, and AI-crafted inspiration.</p>
+      <ul class="hero-badges">
+        <li><span aria-hidden="true">&#128176;</span> Exact Rupee Allocation</li>
+        <li><span aria-hidden="true">&#128197;</span> Adaptive Milestone Timeline</li>
+        <li><span aria-hidden="true">&#9989;</span> Persistent Vendor Checklist</li>
+        <li><span aria-hidden="true">&#128202;</span> Live Expense Ledger &amp; Overrun Alerts</li>
+        <li><span aria-hidden="true">&#10024;</span> Culturally Aware AI Ideas</li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="main" class="container layout" tabindex="-1">
+    <!-- Form Section -->
+    <section id="form-card" class="card form-card" aria-labelledby="form-heading">
+      <div class="form-header">
+        <h2 id="form-heading">Event Requirements</h2>
+        <div class="preset-container" aria-label="Preloaded celebration presets">
+          <span class="preset-title">Sample Presets:</span>
+          <button type="button" class="preset-chip" data-preset="wedding" title="Load sample Royal Heritage Wedding">
+            <span aria-hidden="true">&#128141;</span> Royal Wedding
+          </button>
+          <button type="button" class="preset-chip" data-preset="birthday" title="Load sample Safari Kids Birthday">
+            <span aria-hidden="true">&#127874;</span> Kids Birthday
+          </button>
+          <button type="button" class="preset-chip" data-preset="community" title="Load sample Navratri Community Utsav">
+            <span aria-hidden="true">&#127969;</span> Community Utsav
+          </button>
+        </div>
+      </div>
+
+      <!-- Accessibility Alert Region -->
+      <div id="error-summary" class="error-summary" role="alert" tabindex="-1" hidden>
+        <h3>Please correct the highlighted inputs:</h3>
+        <ul id="error-list"></ul>
+      </div>
+
+      <form id="plan-form" novalidate>
+        <fieldset class="field">
+          <legend class="type-selector-legend">Celebration Category</legend>
+          <div class="type-grid">
+            <label class="type-card" for="type_wedding">
+              <input type="radio" name="event_type" id="type_wedding" value="wedding" checked>
+              <span class="type-icon" aria-hidden="true">&#128141;</span>
+              <span class="type-name">Wedding</span>
+              <span class="type-desc">Ceremony, banquets, multiple vendors &amp; guest hospitality</span>
+            </label>
+            <label class="type-card" for="type_birthday">
+              <input type="radio" name="event_type" id="type_birthday" value="birthday">
+              <span class="type-icon" aria-hidden="true">&#127874;</span>
+              <span class="type-name">Birthday</span>
+              <span class="type-desc">Milestone birthdays, custom cakes, games &amp; party favors</span>
+            </label>
+            <label class="type-card" for="type_community">
+              <input type="radio" name="event_type" id="type_community" value="community">
+              <span class="type-icon" aria-hidden="true">&#127969;</span>
+              <span class="type-name">Community Event</span>
+              <span class="type-desc">Festivals, civic permissions, volunteer teams &amp; crowd safety</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="title">Celebration Name</label>
+          <input type="text" id="title" name="title" maxlength="80" required aria-required="true"
+                 aria-describedby="title-hint title-error" placeholder="e.g. Diya &amp; Aarav's Grand Wedding Ceremony">
+          <p class="hint" id="title-hint">Up to 80 characters.</p>
+          <p class="error-text" id="title-error" hidden></p>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <label for="guest_count">Expected Guests</label>
+            <input type="number" id="guest_count" name="guest_count" min="1" max="5000" inputmode="numeric" required
+                   aria-required="true" aria-describedby="guest-hint guest-error" placeholder="250">
+            <p class="hint" id="guest-hint">Between 1 and 5,000 attendees.</p>
+            <p class="error-text" id="guest_count-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="budget">Total Budget (INR)</label>
+            <input type="number" id="budget" name="budget" min="1000" max="100000000" step="100" inputmode="numeric" required
+                   aria-required="true" aria-describedby="budget-hint budget-error" placeholder="1200000">
+            <p class="hint" id="budget-hint">Exact rupees (minimum Rs 1,000).</p>
+            <p class="error-text" id="budget-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="event_date">Celebration Date</label>
+            <input type="date" id="event_date" name="event_date" required aria-required="true"
+                   aria-describedby="date-hint date-error">
+            <p class="hint" id="date-hint">Today or future date within 3 years.</p>
+            <p class="error-text" id="event_date-error" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="city">City / Destination</label>
+            <input type="text" id="city" name="city" maxlength="60" required aria-required="true"
+                   aria-describedby="city-error" placeholder="Bengaluru">
+            <p class="error-text" id="city-error" hidden></p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="preferences">Dietary, Cultural &amp; Special Preferences (Optional)</label>
+          <textarea id="preferences" name="preferences" rows="3" maxlength="500"
+                    aria-describedby="preferences-hint"
+                    placeholder="e.g. Vegetarian and Jain menu options, outdoor floral mandap, accessible step-free seating for senior grandparents."></textarea>
+          <p class="hint" id="preferences-hint">Dietary requirements, traditions, accessibility needs (up to 500 characters).</p>
+        </div>
+
+        <div class="field">
+          <label for="style_priorities">Style &amp; Priorities (Optional)</label>
+          <input type="text" id="style_priorities" name="style_priorities" maxlength="300"
+                 aria-describedby="style-hint"
+                 placeholder="e.g. Elegant South Indian heritage aesthetic; top priority on photography and guest dining experience.">
+          <p class="hint" id="style-hint">Aesthetic direction and high-priority components (up to 300 characters).</p>
+        </div>
+
+        <div class="field">
+          <label for="planning_notes">Additional Planning Notes (Optional)</label>
+          <textarea id="planning_notes" name="planning_notes" rows="2" maxlength="500"
+                    aria-describedby="notes-hint"
+                    placeholder="e.g. Out-of-town guests arriving Friday morning; need shuttle from hotel to venue."></textarea>
+          <p class="hint" id="notes-hint">Any logistical constraints or specific supplier notes.</p>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary">
+          <span id="submit-label">Generate Complete Celebration Plan</span>
+        </button>
+        <p id="form-status" class="hint" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="card results-card" aria-labelledby="results-heading" tabindex="-1" hidden>
+      <div class="results-header">
+        <div>
+          <h2 id="results-heading">Celebration Blueprint</h2>
+          <p id="results-sub" class="results-meta"></p>
+        </div>
+        <div class="results-actions">
+          <button type="button" class="btn btn-secondary" id="print-btn" title="Print plan or save as clean ink-friendly PDF">
+            <span aria-hidden="true">&#128424;</span> Print / PDF
+          </button>
+          <button type="button" class="btn btn-secondary" id="export-ics-btn" title="Download standard iCalendar (.ics) milestone schedule">
+            <span aria-hidden="true">&#128197;</span> Add Milestones to Calendar
+          </button>
+        </div>
+      </div>
+
+      <div id="ai-source-badge" class="ai-source-badge">
+        <span aria-hidden="true">&#10024;</span>
+        <span id="ai-source-text">Synthesized Plan Ready</span>
+      </div>
+
+      <div id="advisory-box" class="advisory-box" role="region" aria-label="Planning Advisories" hidden></div>
+
+      <!-- Jump Navigation -->
+      <nav class="plan-nav" aria-label="Plan Sections">
+        <a href="#sec-overview" class="plan-nav-link" aria-current="true">Overview</a>
+        <a href="#sec-budget" class="plan-nav-link">Budget &amp; Ledger</a>
+        <a href="#sec-timeline" class="plan-nav-link">Timeline</a>
+        <a href="#sec-vendors" class="plan-nav-link">Vendor Checklist</a>
+        <a href="#sec-ideas" class="plan-nav-link">Ideas &amp; Savings</a>
+      </nav>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="sec" aria-labelledby="overview-heading">
+        <h3 id="overview-heading" style="font-family: var(--font-heading); margin-bottom: 1rem;">Celebration Overview</h3>
+        <p id="plan-summary" style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.7;"></p>
+        <div class="stats-grid" id="stats-grid"></div>
+      </section>
+
+      <!-- Section 2: Budget & Expense Ledger -->
+      <section id="sec-budget" class="sec" aria-labelledby="budget-heading" style="margin-top: 3rem;">
+        <h3 id="budget-heading" style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Budget Allocation &amp; Live Expense Ledger</h3>
+        <p class="hint" style="margin-bottom: 1.25rem;">Deterministic largest-remainder rupee allocation. Update actual expenses below to immediately track overruns and contingency drawdowns.</p>
+        
+        <div class="table-responsive">
+          <table id="budget-table">
+            <caption class="sr-only">Detailed category budget allocation and actual spending ledger</caption>
+            <thead>
+              <tr>
+                <th scope="col" style="width: 32%;">Category</th>
+                <th scope="col" class="text-right" style="width: 12%;">Share</th>
+                <th scope="col" class="text-right" style="width: 18%;">Planned Allocation</th>
+                <th scope="col" class="text-right" style="width: 22%;">Actual Spent (INR)</th>
+                <th scope="col" class="text-right" style="width: 16%;">Variance</th>
+              </tr>
+            </thead>
+            <tbody id="budget-table-body"></tbody>
+            <tfoot id="budget-table-foot"></tfoot>
+          </table>
+        </div>
+
+        <!-- Live Ledger Summary Box -->
+        <div class="ledger-card" id="ledger-card">
+          <div class="ledger-grid">
+            <div class="ledger-item">
+              <h4>Total Planned Budget</h4>
+              <p class="val" id="ledger-total-planned">Rs 0</p>
+            </div>
+            <div class="ledger-item">
+              <h4>Total Actual Spent</h4>
+              <p class="val" id="ledger-total-spent">Rs 0</p>
+            </div>
+            <div class="ledger-item">
+              <h4>Remaining Budget</h4>
+              <p class="val val-positive" id="ledger-remaining">Rs 0</p>
+            </div>
+            <div class="ledger-item">
+              <h4>Contingency Buffer</h4>
+              <p class="val" id="ledger-contingency-balance">Rs 0</p>
+            </div>
+          </div>
+          <div id="ledger-warnings" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- Section 3: Adaptive Timeline -->
+      <section id="sec-timeline" class="sec" aria-labelledby="timeline-heading" style="margin-top: 3rem;">
+        <h3 id="timeline-heading" style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Adaptive Planning Timeline</h3>
+        <p class="hint" style="margin-bottom: 1.25rem;">Chronological milestones scaled dynamically to your lead time, with urgent preparation tasks prioritized first.</p>
+        <ol class="timeline-list" id="timeline-container"></ol>
+      </section>
+
+      <!-- Section 4: Vendor Checklist -->
+      <section id="sec-vendors" class="sec" aria-labelledby="vendors-heading" style="margin-top: 3rem;">
+        <h3 id="vendors-heading" style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Interactive Vendor Checklist</h3>
+        <p class="hint" style="margin-bottom: 1rem;">Actionable operational tasks. Progress is automatically saved in your browser.</p>
+        
+        <div class="checklist-progress-container">
+          <div class="checklist-bar-bg" aria-hidden="true">
+            <div id="checklist-bar-fill" class="checklist-bar-fill" style="width: 0%;"></div>
+          </div>
+          <p id="checklist-counter" class="hint" role="status" aria-live="polite" style="font-weight: 600;"></p>
+        </div>
+
+        <div class="vendor-grid" id="vendor-grid"></div>
+      </section>
+
+      <!-- Section 5: Ideas & Savings Strategies -->
+      <section id="sec-ideas" class="sec" aria-labelledby="ideas-heading" style="margin-top: 3rem;">
+        <h3 id="ideas-heading" style="font-family: var(--font-heading); margin-bottom: 1rem;">Personalized Creative Concepts</h3>
+        <ul class="idea-grid" id="ideas-list"></ul>
+
+        <h3 style="font-family: var(--font-heading); margin: 2rem 0 1rem;">Practical Saving Strategies</h3>
+        <ul class="tips-list" id="tips-list"></ul>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Planora Celebration &amp; Event Planner &bull; Deterministic Financial Math &amp; Adaptive Timeline &bull; Powered by Google Gemini</p>
+      <p class="footer-disclaimer">All currency math is reconciled deterministically in integer units. AI suggestions provide creative starting guidance; always verify local supplier quotes and permits directly.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.min.js') }}" defer></script>
+</body>
+</html>
