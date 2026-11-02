@@ -2,6 +2,7 @@
 
 Covers Weddings, Birthdays, and Community events with real operational checklists.
 """
+
 from __future__ import annotations
 
 from .models import VendorGroup, VendorTask

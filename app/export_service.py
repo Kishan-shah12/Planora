@@ -1,12 +1,8 @@
 """Calendar export service creating standard RFC 5545 iCalendar (.ics) files."""
+
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
-try:
-    from datetime import UTC
-except ImportError:
-    from datetime import timezone
-    UTC = timezone.utc
+from datetime import UTC, date, datetime, timedelta
 
 from .models import PlanResult
 
@@ -16,11 +12,7 @@ def ics_escape(text: str) -> str:
     if not text:
         return ""
     return (
-        text.replace("\\", "\\\\")
-        .replace(";", "\\;")
-        .replace(",", "\\,")
-        .replace("\r\n", "\\n")
-        .replace("\n", "\\n")
+        text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r\n", "\\n").replace("\n", "\\n")
     )
 
 
@@ -57,19 +49,21 @@ def build_icalendar_stream(plan: PlanResult) -> str:
             f"Event Location: {plan.city}"
         )
 
-        lines.extend([
-            "BEGIN:VEVENT",
-            f"UID:{uid}",
-            f"DTSTAMP:{dtstamp}",
-            f"DTSTART;VALUE=DATE:{start_str}",
-            f"DTEND;VALUE=DATE:{end_str}",
-            f"SUMMARY:{ics_escape(summary)}",
-            f"DESCRIPTION:{description}",
-            f"CATEGORIES:{ics_escape(milestone.category)}",
-            "STATUS:CONFIRMED",
-            "TRANSP:TRANSPARENT",
-            "END:VEVENT",
-        ])
+        lines.extend(
+            [
+                "BEGIN:VEVENT",
+                f"UID:{uid}",
+                f"DTSTAMP:{dtstamp}",
+                f"DTSTART;VALUE=DATE:{start_str}",
+                f"DTEND;VALUE=DATE:{end_str}",
+                f"SUMMARY:{ics_escape(summary)}",
+                f"DESCRIPTION:{description}",
+                f"CATEGORIES:{ics_escape(milestone.category)}",
+                "STATUS:CONFIRMED",
+                "TRANSP:TRANSPARENT",
+                "END:VEVENT",
+            ]
+        )
 
     lines.append("END:VCALENDAR")
     return "\r\n".join(lines) + "\r\n"

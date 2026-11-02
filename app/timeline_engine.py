@@ -3,6 +3,7 @@
 Generates chronological, non-overlapping milestones calibrated to actual lead time.
 Distinguishes short-notice emergencies (< 14 days) from multi-month planning.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -26,45 +27,144 @@ class MilestoneTemplate:
 
 TIMELINE_TEMPLATES: dict[str, list[MilestoneTemplate]] = {
     "wedding": [
-        MilestoneTemplate(180, "Establish total budget, define preliminary guest list, and secure celebration date", "Planning", "critical", True),
-        MilestoneTemplate(165, "Shortlist and book primary ceremony & reception banquet venues", "Venue", "critical", True),
-        MilestoneTemplate(150, "Interview and book premium wedding photographer and videographer", "Vendors", "high", True),
+        MilestoneTemplate(
+            180,
+            "Establish total budget, define preliminary guest list, and secure celebration date",
+            "Planning",
+            "critical",
+            True,
+        ),
+        MilestoneTemplate(
+            165, "Shortlist and book primary ceremony & reception banquet venues", "Venue", "critical", True
+        ),
+        MilestoneTemplate(
+            150, "Interview and book premium wedding photographer and videographer", "Vendors", "high", True
+        ),
         MilestoneTemplate(120, "Select bridal/groom attire; book makeup, hair, and mehendi artists", "Attire", "high"),
-        MilestoneTemplate(90, "Finalise floral theme, mandap/stage styling, and send digital Save-the-Dates", "Decor", "medium"),
-        MilestoneTemplate(60, "Dispatch formal invitations, launch RSVP tracker, and confirm DJ/entertainment", "Guests", "high", True),
-        MilestoneTemplate(45, "Arrange out-of-town guest accommodations and inter-venue transportation", "Logistics", "medium"),
-        MilestoneTemplate(30, "Conduct catering tasting, finalize banquet menu, and check dietary needs", "Catering", "high", True),
-        MilestoneTemplate(14, "Re-confirm all vendor contracts, backup power, arrival times, and final RSVPs", "Vendors", "critical", True),
-        MilestoneTemplate(7, "Finalise seating layout, bridal procession timeline, and vendor payment schedule", "Logistics", "high"),
-        MilestoneTemplate(2, "Pack bridal emergency repair kit and brief master of ceremonies/family leads", "Preparation", "high"),
-        MilestoneTemplate(0, "Event Day: Designate single vendor contact lead and execute celebration", "Event Day", "critical", True),
-        MilestoneTemplate(-3, "Review photographer sneak-peek preview and settle final vendor balances", "Post Event", "normal"),
-        MilestoneTemplate(-7, "Send personalized thank-you messages and archive wedding memories", "Post Event", "normal"),
+        MilestoneTemplate(
+            90, "Finalise floral theme, mandap/stage styling, and send digital Save-the-Dates", "Decor", "medium"
+        ),
+        MilestoneTemplate(
+            60, "Dispatch formal invitations, launch RSVP tracker, and confirm DJ/entertainment", "Guests", "high", True
+        ),
+        MilestoneTemplate(
+            45, "Arrange out-of-town guest accommodations and inter-venue transportation", "Logistics", "medium"
+        ),
+        MilestoneTemplate(
+            30, "Conduct catering tasting, finalize banquet menu, and check dietary needs", "Catering", "high", True
+        ),
+        MilestoneTemplate(
+            14,
+            "Re-confirm all vendor contracts, backup power, arrival times, and final RSVPs",
+            "Vendors",
+            "critical",
+            True,
+        ),
+        MilestoneTemplate(
+            7, "Finalise seating layout, bridal procession timeline, and vendor payment schedule", "Logistics", "high"
+        ),
+        MilestoneTemplate(
+            2, "Pack bridal emergency repair kit and brief master of ceremonies/family leads", "Preparation", "high"
+        ),
+        MilestoneTemplate(
+            0, "Event Day: Designate single vendor contact lead and execute celebration", "Event Day", "critical", True
+        ),
+        MilestoneTemplate(
+            -3, "Review photographer sneak-peek preview and settle final vendor balances", "Post Event", "normal"
+        ),
+        MilestoneTemplate(
+            -7, "Send personalized thank-you messages and archive wedding memories", "Post Event", "normal"
+        ),
     ],
     "birthday": [
-        MilestoneTemplate(45, "Define party theme, draft guest headcount, and set maximum budget limit", "Planning", "high", True),
-        MilestoneTemplate(35, "Reserve private party hall, play arena, or prep home venue setup", "Venue", "critical", True),
-        MilestoneTemplate(28, "Book entertainer, game coordinator, magician, or activity booths", "Entertainment", "high"),
-        MilestoneTemplate(21, "Order custom centerpiece cake, dessert table, and approve snack menu", "Catering", "high", True),
-        MilestoneTemplate(14, "Dispatch digital invitations and request dietary/allergy notes in RSVPs", "Guests", "medium"),
-        MilestoneTemplate(7, "Procure party favors, themed decor, balloons, and customized photo backdrop", "Decor", "medium"),
-        MilestoneTemplate(3, "Re-confirm final guest headcount with caterer and prepare games playlist", "Vendors", "high", True),
-        MilestoneTemplate(1, "Pick up custom cake order, decorate party space, and charge camera gear", "Preparation", "high"),
-        MilestoneTemplate(0, "Event Day: Welcome guests, run activities, cake cutting, and group photos", "Event Day", "critical", True),
-        MilestoneTemplate(-2, "Send thank-you messages with candid photo album link to families", "Post Event", "normal"),
+        MilestoneTemplate(
+            45, "Define party theme, draft guest headcount, and set maximum budget limit", "Planning", "high", True
+        ),
+        MilestoneTemplate(
+            35, "Reserve private party hall, play arena, or prep home venue setup", "Venue", "critical", True
+        ),
+        MilestoneTemplate(
+            28, "Book entertainer, game coordinator, magician, or activity booths", "Entertainment", "high"
+        ),
+        MilestoneTemplate(
+            21, "Order custom centerpiece cake, dessert table, and approve snack menu", "Catering", "high", True
+        ),
+        MilestoneTemplate(
+            14, "Dispatch digital invitations and request dietary/allergy notes in RSVPs", "Guests", "medium"
+        ),
+        MilestoneTemplate(
+            7, "Procure party favors, themed decor, balloons, and customized photo backdrop", "Decor", "medium"
+        ),
+        MilestoneTemplate(
+            3, "Re-confirm final guest headcount with caterer and prepare games playlist", "Vendors", "high", True
+        ),
+        MilestoneTemplate(
+            1, "Pick up custom cake order, decorate party space, and charge camera gear", "Preparation", "high"
+        ),
+        MilestoneTemplate(
+            0,
+            "Event Day: Welcome guests, run activities, cake cutting, and group photos",
+            "Event Day",
+            "critical",
+            True,
+        ),
+        MilestoneTemplate(
+            -2, "Send thank-you messages with candid photo album link to families", "Post Event", "normal"
+        ),
     ],
     "community": [
-        MilestoneTemplate(60, "Establish organizing committee, event purpose, and civic approval scope", "Planning", "critical", True),
-        MilestoneTemplate(50, "Submit local municipality/police permissions, safety clearance, and secure ground", "Venue & Permits", "critical", True),
-        MilestoneTemplate(40, "Mobilize community volunteer captains and assign functional zone leads", "Volunteers", "high"),
-        MilestoneTemplate(30, "Procure high-output sound/PA system, stage riser, and power backup generator", "Equipment", "high", True),
-        MilestoneTemplate(21, "Launch public promotional campaign: banners, WhatsApp blasts, and local notices", "Marketing", "medium"),
-        MilestoneTemplate(14, "Confirm guest dignitaries, performers, emcee script, and sequence of events", "Program", "high"),
-        MilestoneTemplate(7, "Inspect step-free ramps, mark emergency evacuation exits, and prep first-aid tent", "Safety & Inclusivity", "critical", True),
-        MilestoneTemplate(2, "Volunteer walkthrough, run audio sound-check, and mount directional signage", "Preparation", "high"),
-        MilestoneTemplate(0, "Event Day: Coordinate stage flow, manage crowd movement, and oversee refreshments", "Event Day", "critical", True),
-        MilestoneTemplate(-3, "Complete ground teardown, waste recycling audit, and settle volunteer expenses", "Post Event", "high"),
-        MilestoneTemplate(-7, "Publish community financial ledger transparency report and community thank-you note", "Post Event", "normal"),
+        MilestoneTemplate(
+            60, "Establish organizing committee, event purpose, and civic approval scope", "Planning", "critical", True
+        ),
+        MilestoneTemplate(
+            50,
+            "Submit local municipality/police permissions, safety clearance, and secure ground",
+            "Venue & Permits",
+            "critical",
+            True,
+        ),
+        MilestoneTemplate(
+            40, "Mobilize community volunteer captains and assign functional zone leads", "Volunteers", "high"
+        ),
+        MilestoneTemplate(
+            30,
+            "Procure high-output sound/PA system, stage riser, and power backup generator",
+            "Equipment",
+            "high",
+            True,
+        ),
+        MilestoneTemplate(
+            21, "Launch public promotional campaign: banners, WhatsApp blasts, and local notices", "Marketing", "medium"
+        ),
+        MilestoneTemplate(
+            14, "Confirm guest dignitaries, performers, emcee script, and sequence of events", "Program", "high"
+        ),
+        MilestoneTemplate(
+            7,
+            "Inspect step-free ramps, mark emergency evacuation exits, and prep first-aid tent",
+            "Safety & Inclusivity",
+            "critical",
+            True,
+        ),
+        MilestoneTemplate(
+            2, "Volunteer walkthrough, run audio sound-check, and mount directional signage", "Preparation", "high"
+        ),
+        MilestoneTemplate(
+            0,
+            "Event Day: Coordinate stage flow, manage crowd movement, and oversee refreshments",
+            "Event Day",
+            "critical",
+            True,
+        ),
+        MilestoneTemplate(
+            -3, "Complete ground teardown, waste recycling audit, and settle volunteer expenses", "Post Event", "high"
+        ),
+        MilestoneTemplate(
+            -7,
+            "Publish community financial ledger transparency report and community thank-you note",
+            "Post Event",
+            "normal",
+        ),
     ],
 }
 
@@ -178,7 +278,7 @@ def build_adaptive_timeline(request: PlanRequest, today: date) -> tuple[list[Mil
                 due = request.event_date + timedelta(days=abs(t.ideal_days_before))
 
             days_from_now = (due - today).days
-            is_urgent = (days_from_now <= 3 and t.ideal_days_before >= 0)
+            is_urgent = days_from_now <= 3 and t.ideal_days_before >= 0
             prio = "critical" if (is_urgent and t.is_critical_path) else t.default_priority
 
             milestones.append(

@@ -1,4 +1,5 @@
 """Unit tests for vendor checklist generation across all three event domains."""
+
 from app.vendor_engine import build_vendor_groups
 
 

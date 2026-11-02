@@ -3,6 +3,7 @@
 Synthesizes budget allocation, adaptive timelines, and vendor checklists
 entirely in deterministic code with zero AI dependency.
 """
+
 from __future__ import annotations
 
 from datetime import date

@@ -1,4 +1,5 @@
 """Flask route handlers, API endpoints, rate limiting, and error formatting."""
+
 from __future__ import annotations
 
 import logging
@@ -48,16 +49,31 @@ def health() -> Response:
     return jsonify({"status": "healthy", "service": "planora", "version": "2.0.0"})
 
 
+def _is_untrusted_cross_origin() -> bool:
+    origin = request.headers.get("Origin")
+    if not origin:
+        return False
+    host = request.headers.get("Host", "")
+    origin_host = origin.split("://")[-1].split(":")[0].lower()
+    clean_host = host.split(":")[0].lower()
+    return origin_host != clean_host and origin_host not in {"localhost", "127.0.0.1", "testserver"}
+
+
 @bp.route("/api/plan", methods=["POST"])
 def create_plan() -> tuple[Response, int]:
     """Generate a celebration plan combining deterministic calculations with AI insights."""
+    if _is_untrusted_cross_origin():
+        return jsonify({"error": "Forbidden cross-origin request."}), 403
+
     client_ip = get_client_ip()
     allowed, retry_after = rate_limiter.allow(client_ip)
     if not allowed:
-        resp = jsonify({
-            "error": "Rate limit exceeded. Please wait a moment before generating another plan.",
-            "retry_after": retry_after,
-        })
+        resp = jsonify(
+            {
+                "error": "Rate limit exceeded. Please wait a moment before generating another plan.",
+                "retry_after": retry_after,
+            }
+        )
         resp.headers["Retry-After"] = str(retry_after)
         return resp, 429
 
@@ -69,8 +85,7 @@ def create_plan() -> tuple[Response, int]:
         plan_req = PlanRequest.model_validate(data)
     except ValidationError as exc:
         details = [
-            {"field": str(err["loc"][0]) if err["loc"] else "body", "message": err["msg"]}
-            for err in exc.errors()
+            {"field": str(err["loc"][0]) if err["loc"] else "body", "message": err["msg"]} for err in exc.errors()
         ]
         return jsonify({"error": "Validation failed", "details": details}), 422
 
@@ -78,9 +93,13 @@ def create_plan() -> tuple[Response, int]:
     try:
         core = build_core_plan(plan_req, today)
     except PlanInputError as pie:
-        return jsonify({"error": "Planning constraint violation", "details": [{"field": pie.field, "message": str(pie)}]}), 422
+        return jsonify(
+            {"error": "Planning constraint violation", "details": [{"field": pie.field, "message": str(pie)}]}
+        ), 422
     except ValueError as ve:
-        return jsonify({"error": "Planning constraint violation", "details": [{"field": "event_date", "message": str(ve)}]}), 422
+        return jsonify(
+            {"error": "Planning constraint violation", "details": [{"field": "event_date", "message": str(ve)}]}
+        ), 422
 
     insights, source = get_insights_service().get(plan_req, core)
 
@@ -110,6 +129,9 @@ def create_plan() -> tuple[Response, int]:
 @bp.route("/api/budget/recalculate", methods=["POST"])
 def recalculate_budget() -> tuple[Response, int]:
     """Recalculate budget ledger and overrun detection given actual vendor costs."""
+    if _is_untrusted_cross_origin():
+        return jsonify({"error": "Forbidden cross-origin request."}), 403
+
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"error": "Invalid request body; JSON object expected."}), 400

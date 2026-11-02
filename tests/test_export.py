@@ -1,4 +1,5 @@
 """Unit tests for calendar RFC 5545 iCalendar (.ics) generation."""
+
 from datetime import date
 
 from app.export_service import build_icalendar_stream, ics_escape
@@ -7,6 +8,8 @@ from app.models import AIInsights, BudgetLine, Milestone, PlanResult
 
 def test_ics_escape_characters():
     """ics_escape escapes commas, semicolons, backslashes, and newlines."""
+    assert ics_escape("") == ""
+    assert ics_escape(None) == ""
     raw = "Venue, Hall; Main Street \\ Stage\nSecond line"
     escaped = ics_escape(raw)
     assert "\\," in escaped

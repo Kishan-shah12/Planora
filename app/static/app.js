@@ -375,13 +375,15 @@
       countUp(plannedCell, b.amount, inrFmt.format);
 
       // Actual spend input
+      const inputId = `actual-spend-${b.category.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}`;
       const actualInput = el("input", {
         type: "number",
+        id: inputId,
         min: "0",
         step: "100",
         placeholder: "0",
         value: actualSpendings[b.category] || "",
-        "aria-label": `Actual spend for ${b.category}`,
+        "aria-label": `Actual spend for ${b.category} in Indian Rupees`,
         style: "width: 120px; text-align: right; padding: 0.4rem 0.6rem; font-size: 0.9rem;",
       });
 
@@ -567,19 +569,22 @@
         const storageKey = getTaskStorageKey(plan.title, t.id);
         const isDone = localStorage.getItem(storageKey) === "done";
 
+        const taskId = `task-${t.id}`;
         const chk = el("input", {
           type: "checkbox",
-          id: `task-${t.id}`,
+          id: taskId,
           "aria-label": t.title,
         });
         chk.checked = isDone;
 
+        const taskLabel = el("label", { class: "task-content", for: taskId }, [
+          el("span", { class: "task-title", text: t.title }),
+          el("span", { class: "task-desc", text: t.description }),
+        ]);
+
         const li = el("li", { class: isDone ? "task-item completed" : "task-item" }, [
           chk,
-          el("div", { class: "task-content" }, [
-            el("span", { class: "task-title", text: t.title }),
-            el("span", { class: "task-desc", text: t.description }),
-          ]),
+          taskLabel,
         ]);
 
         chk.addEventListener("change", () => {

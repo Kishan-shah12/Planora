@@ -1,4 +1,5 @@
 """Integration tests for HTTP routes, security headers, validation, and error handling."""
+
 from datetime import date, timedelta
 
 
@@ -106,7 +107,13 @@ def test_recalculate_budget_endpoint(client):
         "total_budget": 100000,
         "budget_lines": [
             {"category": "Venue", "percent": 50, "amount_paise": 5000000, "amount": 50000, "estimated_amount": 50000},
-            {"category": "Catering", "percent": 50, "amount_paise": 5000000, "amount": 50000, "estimated_amount": 50000},
+            {
+                "category": "Catering",
+                "percent": 50,
+                "amount_paise": 5000000,
+                "amount": 50000,
+                "estimated_amount": 50000,
+            },
         ],
         "actuals": {"Venue": 55000, "Catering": 40000},
     }
@@ -180,3 +187,117 @@ def test_api_payload_too_large(client):
     resp = client.post("/api/plan", json=giant_payload)
     assert resp.status_code == 413
 
+
+def test_cross_origin_requests_rejected(client):
+    """Untrusted cross-origin POST requests are rejected with 403 Forbidden."""
+    resp1 = client.post("/api/plan", json={}, headers={"Origin": "https://attacker.example.com"})
+    assert resp1.status_code == 403
+    assert "cross-origin" in resp1.get_json()["error"].lower()
+
+    resp2 = client.post("/api/budget/recalculate", json={}, headers={"Origin": "https://attacker.example.com"})
+    assert resp2.status_code == 403
+    assert "cross-origin" in resp2.get_json()["error"].lower()
+
+
+def test_rate_limiter_429_response(client, today):
+    """Exceeding the request rate limit triggers a 429 with compliant Retry-After header."""
+    from app import routes
+
+    # Temporarily set a very small limit
+    old_limiter = routes.rate_limiter
+    routes.rate_limiter = routes.RateLimiter(limit=2, window_seconds=60.0)
+
+    try:
+        payload = {
+            "event_type": "wedding",
+            "title": "Aarav & Diya Wedding",
+            "guest_count": 250,
+            "budget": 1200000,
+            "event_date": (today + timedelta(days=90)).isoformat(),
+            "city": "Bengaluru",
+        }
+        client.post("/api/plan", json=payload, headers={"X-Forwarded-For": "198.51.100.99"})
+        client.post("/api/plan", json=payload, headers={"X-Forwarded-For": "198.51.100.99"})
+        resp = client.post("/api/plan", json=payload, headers={"X-Forwarded-For": "198.51.100.99"})
+
+        assert resp.status_code == 429
+        assert "Retry-After" in resp.headers
+        assert "Rate limit exceeded" in resp.get_json()["error"]
+    finally:
+        routes.rate_limiter = old_limiter
+
+
+def test_500_internal_server_error_handler(client, monkeypatch):
+    """Unhandled server exceptions return consistent JSON error format with 500 status code."""
+    from app import routes
+
+    def mock_build_core_plan(*args, **kwargs):
+        raise RuntimeError("Simulated database/internal crash")
+
+    monkeypatch.setattr(routes, "build_core_plan", mock_build_core_plan)
+    client.application.testing = False
+    client.application.config["PROPAGATE_EXCEPTIONS"] = False
+
+    payload = {
+        "event_type": "wedding",
+        "title": "Aarav Wedding",
+        "guest_count": 250,
+        "budget": 1200000,
+        "event_date": "2027-10-10",
+        "city": "Bengaluru",
+    }
+    resp = client.post("/api/plan", json=payload)
+    assert resp.status_code == 500
+    assert "unexpected server error" in resp.get_json()["error"].lower()
+
+
+def test_static_asset_caching_and_security_headers(client):
+    """Static assets receive long-term immutable Cache-Control headers."""
+    resp = client.get("/static/theme.js")
+    assert resp.status_code == 200
+    assert "public, max-age=31536000, immutable" in resp.headers["Cache-Control"]
+    assert "Strict-Transport-Security" in resp.headers
+    assert "Cross-Origin-Opener-Policy" in resp.headers
+
+
+def test_get_client_ip_with_x_forwarded_for(client):
+    """get_client_ip properly extracts the leading client IP from X-Forwarded-For."""
+    resp = client.get("/api/health", headers={"X-Forwarded-For": "203.0.113.195, 70.41.3.18"})
+    assert resp.status_code == 200
+
+
+def test_get_insights_service_initialization(client):
+    """get_insights_service initializes GeminiProvider when GEMINI_API_KEY is configured."""
+    from app import routes
+
+    routes._insights_service = None
+    client.application.config["GEMINI_API_KEY"] = "fake-api-key"
+    with client.application.app_context():
+        service = routes.get_insights_service()
+        assert service._provider is not None
+
+    # Reset
+    routes._insights_service = None
+    client.application.config["GEMINI_API_KEY"] = ""
+
+
+def test_planning_constraint_generic_value_error(client, monkeypatch):
+    """Generic ValueError in build_core_plan produces a 422 validation response."""
+    from app import routes
+
+    def mock_build_core_plan(*args, **kwargs):
+        raise ValueError("Simulated general constraint violation")
+
+    monkeypatch.setattr(routes, "build_core_plan", mock_build_core_plan)
+
+    payload = {
+        "event_type": "wedding",
+        "title": "Aarav Wedding",
+        "guest_count": 250,
+        "budget": 1200000,
+        "event_date": "2027-10-10",
+        "city": "Bengaluru",
+    }
+    resp = client.post("/api/plan", json=payload)
+    assert resp.status_code == 422
+    assert resp.get_json()["error"] == "Planning constraint violation"

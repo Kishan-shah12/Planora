@@ -1,4 +1,5 @@
 """Unit tests for adaptive milestone timeline generation and date edge cases."""
+
 from datetime import date, timedelta
 
 import pytest

@@ -1,4 +1,5 @@
 """Pydantic v2 data models: validated requests, deterministic plans, and AI insights."""
+
 from __future__ import annotations
 
 from datetime import date

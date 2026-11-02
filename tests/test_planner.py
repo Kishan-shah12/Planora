@@ -1,4 +1,5 @@
 """Unit tests for planner orchestration and error branches."""
+
 from datetime import timedelta
 
 import pytest
@@ -40,3 +41,20 @@ def test_build_core_plan_date_too_far_future(valid_wedding_request, today):
         build_core_plan(future_req, today)
     assert exc.value.field == "event_date"
     assert "next 3 years" in str(exc.value)
+
+
+def test_plan_request_non_string_validation_error(today):
+    """Providing a non-string object to a text field raises a TypeError."""
+    from app.models import PlanRequest
+
+    with pytest.raises(TypeError, match="Field must be text"):
+        PlanRequest.model_validate(
+            {
+                "event_type": "wedding",
+                "title": 12345,
+                "guest_count": 100,
+                "budget": 500000,
+                "event_date": today.isoformat(),
+                "city": "Bengaluru",
+            }
+        )

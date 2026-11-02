@@ -1,4 +1,5 @@
 """Unit tests for budget calculations, largest-remainder allocation, and live expense ledger."""
+
 import pytest
 
 from app.budget_engine import (
@@ -115,3 +116,49 @@ def test_reconcile_budget_ledger_total_overspend():
     assert res.is_overspent
     assert res.overspent_amount == 2_000
     assert any("Caution: Total expenditures exceed" in w for w in res.warnings)
+
+
+def test_shift_percentage_points_missing_category():
+    """_shift_percentage_points safely returns 0 if source or target category is not in splits."""
+    from app.budget_engine import _shift_percentage_points
+
+    splits = {"Venue": 50, "Catering": 50}
+    moved = _shift_percentage_points(splits, "UnknownCategory", "Venue", 5)
+    assert moved == 0
+
+    moved_target = _shift_percentage_points(splits, "Venue", "UnknownCategory", 5)
+    assert moved_target == 0
+
+
+def test_compute_adjusted_splits_flex_category_exhausted(valid_wedding_request, monkeypatch):
+    """When the flexible category has <= 1% and cannot be trimmed, advisory note is appended."""
+    from app import budget_engine
+
+    custom_profile = budget_engine.EventBudgetProfile(
+        base_splits={
+            "Catering & Dining": 40,
+            "Contingency & Buffer": 5,
+            "Decor & Florals": 1,
+            "Venue & Logistics": 54,
+        },
+        essential_category="Catering & Dining",
+        flex_category="Decor & Florals",
+        min_per_guest_threshold=10_000,
+        large_guest_threshold=500,
+        category_descriptions={},
+    )
+    monkeypatch.setitem(budget_engine.BUDGET_PROFILES, "wedding", custom_profile)
+
+    tight_req = valid_wedding_request.model_copy(update={"budget": 100_000, "guest_count": 200})
+    _splits, notes = budget_engine.compute_adjusted_splits(tight_req, 90)
+    assert any("Budget per guest is tight" in n for n in notes)
+
+
+def test_allocate_budget_largest_remainder_surplus_paise():
+    """Paise surplus remainder allocation distributes odd paise with zero error."""
+    from app.budget_engine import allocate_budget_largest_remainder
+
+    splits = {"Venue & Catering": 33, "Decor & Styling": 33, "Photography & Video": 34}
+    lines = allocate_budget_largest_remainder(1001, splits, "wedding")
+    assert sum(l.amount for l in lines) == 1001
+    assert sum(l.amount_paise for l in lines) == 100100

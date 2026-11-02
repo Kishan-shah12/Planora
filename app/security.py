@@ -1,4 +1,5 @@
 """Input sanitisation, prompt-injection screening, sliding-window rate limiting, and HTTP security headers."""
+
 from __future__ import annotations
 
 import re
@@ -23,7 +24,9 @@ _INJECTION_PATTERN = re.compile(
     r"|act\s+as\s+(\w+|an?|the)"
     r"|reveal\s+(your|the)\s+(prompt|instructions|system\s+rules)"
     r"|<system>|\[SYSTEM\]|<\/?event_data>"
-    r"|jailbreak|\bDAN\b|DAN\s+mode|unrestricted\s+mode",
+    r"|jailbreak|\bDAN\b|DAN\s+mode|unrestricted\s+mode"
+    r"|do\s+anything\s+now|repeat\s+previous\s+instructions"
+    r"|output\s+initialization|print\s+everything\s+above",
     re.IGNORECASE,
 )
 
@@ -94,14 +97,15 @@ def get_client_ip() -> str:
 
 _CSP = (
     "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline'; "
+    "script-src 'self'; "
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
     "font-src 'self' https://fonts.gstatic.com data:; "
     "img-src 'self' data: https:; "
     "connect-src 'self'; "
     "base-uri 'none'; "
     "form-action 'self'; "
-    "frame-ancestors 'none'"
+    "frame-ancestors 'none'; "
+    "upgrade-insecure-requests"
 )
 
 
@@ -111,7 +115,14 @@ def apply_security_headers(response: Response) -> Response:
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=(), "
+        "accelerometer=(), gyroscope=(), magnetometer=(), display-capture=()"
+    )
     if request.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"

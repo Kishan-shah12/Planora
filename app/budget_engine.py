@@ -3,6 +3,7 @@
 Axiom: Code does the math, never trust AI-generated arithmetic.
 Uses integer paise internally to prevent floating-point inaccuracies.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -112,7 +113,7 @@ BUDGET_PROFILES: dict[str, EventBudgetProfile] = {
 
 def _shift_percentage_points(splits: dict[str, int], source: str, target: str, points: int) -> int:
     """Safely transfer up to ``points`` percentage points from source to target.
-    
+
     Guarantees the source category retains at least 1 percentage point.
     """
     if source not in splits or target not in splits:
@@ -180,43 +181,24 @@ def allocate_budget_largest_remainder(budget: int, splits: dict[str, int], event
     descriptions = BUDGET_PROFILES[event_type].category_descriptions
     essential_cat = BUDGET_PROFILES[event_type].essential_category
 
-    # Integer paise math: 1 Rupee = 100 Paise
-    total_paise = budget * 100
+    # Step 1: Base allocation in whole INR using integer division
+    base_inr: dict[str, int] = {cat: (budget * pct) // 100 for cat, pct in splits.items()}
 
-    # Step 1: Base allocation in paise using integer division
-    base_paise: dict[str, int] = {}
-    remainders: list[tuple[int, str]] = []
-
-    for category, pct in splits.items():
-        share_paise = (total_paise * pct) // 100
-        remainder = (total_paise * pct) % 100
-        base_paise[category] = share_paise
-        remainders.append((remainder, category))
-
-    # Step 2: Distribute remaining surplus paise by descending remainder
-    surplus_paise = total_paise - sum(base_paise.values())
-    remainders.sort(key=lambda item: item[0], reverse=True)
-
-    for i in range(surplus_paise):
-        cat = remainders[i % len(remainders)][1]
-        base_paise[cat] += 1
-
-    # Step 3: Convert paise to whole INR with zero discrepancy
-    # Base INR allocation:
-    base_inr: dict[str, int] = {cat: p // 100 for cat, p in base_paise.items()}
-    inr_remainders = sorted(
-        splits.keys(),
-        key=lambda c: base_paise[c] % 100,
-        reverse=True,
-    )
+    # Step 2: Distribute unassigned rupees using Largest-Remainder (Hamilton) Method
     unassigned_rupees = budget - sum(base_inr.values())
-    for cat in inr_remainders[:unassigned_rupees]:
-        base_inr[cat] += 1
+    if unassigned_rupees > 0:
+        remainders = sorted(
+            splits.keys(),
+            key=lambda c: (budget * splits[c]) % 100,
+            reverse=True,
+        )
+        for cat in remainders[:unassigned_rupees]:
+            base_inr[cat] += 1
 
     lines: list[BudgetLine] = []
     for category, pct in splits.items():
         amount_inr = base_inr[category]
-        amount_paise = base_paise[category]
+        amount_paise = amount_inr * 100
         lines.append(
             BudgetLine(
                 category=category,
@@ -239,7 +221,7 @@ def reconcile_budget_ledger(
     actual_spending: Mapping[str, int],
 ) -> BudgetRecalculationResult:
     """Calculate live budget ledger comparing planned allocation vs actual user spending.
-    
+
     Provides precise overrun detection and contingency drawdown.
     """
     contingency_planned = 0

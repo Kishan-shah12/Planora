@@ -1,4 +1,5 @@
 """Pytest test configuration and fixtures."""
+
 from datetime import date, timedelta
 
 import pytest

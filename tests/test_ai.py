@@ -1,4 +1,5 @@
 """Unit tests for AI provider integration, prompt defense, fallback, and caching."""
+
 from app.ai import (
     FallbackProvider,
     InsightsService,
@@ -58,6 +59,7 @@ def test_fallback_provider_returns_valid_structured_insights(valid_wedding_reque
 
 def test_insights_service_graceful_fallback_on_exception(valid_birthday_request, today):
     """InsightsService catches provider exceptions seamlessly and returns fallback."""
+
     class FailingProvider:
         def generate(self, req, core):
             raise TimeoutError("Gemini API connection timed out")
@@ -93,3 +95,73 @@ def test_insights_service_bounded_cache_hit(valid_community_request, today):
     _, source2 = service.get(valid_community_request, core)
     assert call_count == 1
     assert source2 == "gemini"
+
+
+def test_load_system_prompt_fallback(monkeypatch):
+    """load_system_prompt returns default prompt when prompt asset file does not exist."""
+    from pathlib import Path
+
+    from app.ai import load_system_prompt
+
+    monkeypatch.setattr(Path, "is_file", lambda self: False)
+    prompt = load_system_prompt()
+    assert "You are Planora's celebration planner" in prompt
+
+
+def test_load_system_prompt_from_file():
+    """load_system_prompt reads the prompt file when it exists."""
+    from app.ai import load_system_prompt
+
+    prompt = load_system_prompt()
+    assert len(prompt) > 0
+    assert "Planora" in prompt
+
+
+def test_gemini_provider_mocked(valid_wedding_request, today, monkeypatch):
+    """GeminiProvider calls Google GenAI Client and validates structured output."""
+    import sys
+    from unittest.mock import MagicMock
+
+    from app.ai import GeminiProvider
+
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.text = (
+        '{"summary": "Mocked celebration overview", '
+        '"ideas": [{"title": "Decor Idea", "description": "Floral backdrop"}], '
+        '"checklist_extras": [{"category": "Decor", "item": "Order flowers"}], '
+        '"saving_tips": ["Book early"], '
+        '"contingency_advice": "Keep indoor backup"}'
+    )
+    mock_client.models.generate_content.return_value = mock_response
+
+    mock_genai = MagicMock()
+    mock_genai.Client.return_value = mock_client
+    monkeypatch.setitem(sys.modules, "google.genai", mock_genai)
+    monkeypatch.setitem(sys.modules, "google.genai.types", MagicMock())
+
+    core = build_core_plan(valid_wedding_request, today)
+    provider = GeminiProvider(api_key="test-api-key", model="gemini-2.5-flash", system_prompt="Test System Prompt")
+    insights = provider.generate(valid_wedding_request, core)
+
+    assert insights.summary == "Mocked celebration overview"
+    assert len(insights.ideas) == 1
+    assert insights.ideas[0].title == "Decor Idea"
+
+
+def test_insights_service_cache_eviction(valid_wedding_request, today):
+    """When cache exceeds cache_size, oldest items are evicted according to LRU policy."""
+    core = build_core_plan(valid_wedding_request, today)
+    service = InsightsService(provider=FallbackProvider(), cache_size=2)
+
+    req1 = valid_wedding_request.model_copy(update={"title": "Celebration 1"})
+    req2 = valid_wedding_request.model_copy(update={"title": "Celebration 2"})
+    req3 = valid_wedding_request.model_copy(update={"title": "Celebration 3"})
+
+    service.get(req1, core)
+    service.get(req2, core)
+    assert len(service._cache) == 2
+
+    # Third call evicts the first item
+    service.get(req3, core)
+    assert len(service._cache) == 2
