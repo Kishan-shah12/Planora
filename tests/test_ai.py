@@ -65,6 +65,7 @@ def test_insights_service_graceful_fallback_on_exception(valid_birthday_request,
             raise TimeoutError("Gemini API connection timed out")
 
     core = build_core_plan(valid_birthday_request, today)
+    # pyrefly: ignore[bad-argument-type]
     service = InsightsService(provider=FailingProvider())
     insights, source = service.get(valid_birthday_request, core)
 
@@ -84,6 +85,7 @@ def test_insights_service_bounded_cache_hit(valid_community_request, today):
             return FallbackProvider().generate(req, core)
 
     core = build_core_plan(valid_community_request, today)
+    # pyrefly: ignore[bad-argument-type]
     service = InsightsService(provider=MockProvider(), cache_size=2)
 
     # First call: cache miss

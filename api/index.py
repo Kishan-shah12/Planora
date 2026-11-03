@@ -36,6 +36,7 @@ def app(environ: dict[str, Any], start_response: Any) -> list[bytes]:
         start_response(status, response_headers)
         return [f"Startup Initialization Error:\n\n{init_error}".encode()]
     try:
+        # pyrefly: ignore[bad-return]
         return flask_app(environ, start_response)
     except Exception:
         status = "500 Internal Server Error"
