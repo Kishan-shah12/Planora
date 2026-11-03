@@ -9,7 +9,7 @@ from app.models import AIInsights, BudgetLine, Milestone, PlanResult
 def test_ics_escape_characters():
     """ics_escape escapes commas, semicolons, backslashes, and newlines."""
     assert ics_escape("") == ""
-    assert ics_escape(None) == ""
+    assert ics_escape(None) == ""  # type: ignore[arg-type]
     raw = "Venue, Hall; Main Street \\ Stage\nSecond line"
     escaped = ics_escape(raw)
     assert "\\," in escaped

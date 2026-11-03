@@ -8,7 +8,7 @@ import logging
 import threading
 from collections import OrderedDict
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol, TypedDict
 
 from .models import (
     AIInsights,
@@ -25,6 +25,15 @@ PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "system_prompt.txt"
 MAX_IDEAS = 5
 MAX_EXTRAS = 8
 MAX_TIPS = 5
+
+
+class OfflineTemplate(TypedDict):
+    """Schema for offline fallback template structures."""
+
+    ideas: list[tuple[str, str]]
+    extras: list[tuple[str, str]]
+    tips: list[str]
+    advice: str
 
 
 class InsightsProvider(Protocol):
@@ -111,7 +120,7 @@ class GeminiProvider:
         self._model = model
         self._system_prompt = system_prompt or load_system_prompt()
         self._timeout_ms = timeout_ms
-        self._client = None
+        self._client: Any = None
 
     def _call_model(self, prompt: str) -> str:
         from google import genai
@@ -140,7 +149,7 @@ class GeminiProvider:
         return sanitize_insights(AIInsights.model_validate_json(raw_text))
 
 
-_OFFLINE_TEMPLATES = {
+_OFFLINE_TEMPLATES: dict[str, OfflineTemplate] = {
     "wedding": {
         "ideas": [
             (
@@ -315,7 +324,7 @@ class InsightsService:
 
         try:
             insights = self._provider.generate(request, core)
-        except Exception as exc:  # noqa: BLE001 - Resilient fallback across any provider failure
+        except Exception as exc:
             logger.warning("AI provider call failed (%s); seamlessly using deterministic fallback.", type(exc).__name__)
             return self._fallback.generate(request, core), "fallback"
 

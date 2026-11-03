@@ -17,8 +17,7 @@ def app():
         "GEMINI_API_KEY": "",  # Force deterministic offline mode
         "MAX_CONTENT_LENGTH": 32 * 1024,
     }
-    app = create_app(test_config)
-    return app
+    return create_app(test_config)
 
 
 @pytest.fixture

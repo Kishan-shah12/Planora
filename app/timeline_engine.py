@@ -169,6 +169,123 @@ TIMELINE_TEMPLATES: dict[str, list[MilestoneTemplate]] = {
 }
 
 
+URGENT_TIMELINE_THRESHOLD_DAYS = 14
+URGENT_TASK_WINDOW_DAYS = 2
+CRITICAL_PROXIMITY_DAYS = 3
+
+
+def _build_same_day_milestones(templates: list[MilestoneTemplate], today: date) -> list[Milestone]:
+    """Generate milestones for events occurring today."""
+    milestones: list[Milestone] = []
+    for idx, t in enumerate(templates):
+        if t.ideal_days_before >= 0:
+            due = today
+            task_priority: TaskPriority = "critical" if t.is_critical_path else "high"
+        else:
+            due = today + timedelta(days=abs(t.ideal_days_before))
+            task_priority = "normal"
+        milestones.append(
+            Milestone(
+                id=f"m-{idx + 1}",
+                due_date=due,
+                days_from_today=(due - today).days,
+                task=t.task,
+                category=t.category,
+                priority=task_priority,
+                is_urgent=(due == today),
+            )
+        )
+    return milestones
+
+
+def _build_urgent_milestones(
+    templates: list[MilestoneTemplate],
+    today: date,
+    event_date: date,
+    days_until: int,
+) -> list[Milestone]:
+    """Distribute compressed milestones across short lead times without overwhelming day 0."""
+    pre_event_templates = [t for t in templates if t.ideal_days_before > 0]
+    post_event_templates = [t for t in templates if t.ideal_days_before <= 0]
+    milestones: list[Milestone] = []
+
+    total_pre = len(pre_event_templates)
+    for idx, t in enumerate(pre_event_templates):
+        day_offset = int((idx / max(1, total_pre - 1)) * max(0, days_until - 1))
+        due = today + timedelta(days=day_offset)
+        days_from_now = (due - today).days
+        task_priority: TaskPriority = "critical" if t.is_critical_path or days_from_now == 0 else t.default_priority
+        milestones.append(
+            Milestone(
+                id=f"m-{idx + 1}",
+                due_date=due,
+                days_from_today=days_from_now,
+                task=t.task,
+                category=t.category,
+                priority=task_priority,
+                is_urgent=(days_from_now <= URGENT_TASK_WINDOW_DAYS),
+            )
+        )
+
+    offset_idx = len(pre_event_templates)
+    for idx, t in enumerate(post_event_templates):
+        if t.ideal_days_before == 0:
+            due = event_date
+            post_priority: TaskPriority = "critical"
+        else:
+            due = event_date + timedelta(days=abs(t.ideal_days_before))
+            post_priority = t.default_priority
+        days_from_now = (due - today).days
+        milestones.append(
+            Milestone(
+                id=f"m-{offset_idx + idx + 1}",
+                due_date=due,
+                days_from_today=days_from_now,
+                task=t.task,
+                category=t.category,
+                priority=post_priority,
+                is_urgent=(days_from_now == 0),
+            )
+        )
+    return milestones
+
+
+def _build_proportional_milestones(
+    templates: list[MilestoneTemplate],
+    today: date,
+    event_date: date,
+    scale: float,
+) -> list[Milestone]:
+    """Generate milestones proportionally scaled to available lead time."""
+    milestones: list[Milestone] = []
+    for idx, t in enumerate(templates):
+        if t.ideal_days_before > 0:
+            scaled_offset = max(1, round(t.ideal_days_before * scale))
+            due = event_date - timedelta(days=scaled_offset)
+            due = max(due, today)
+        elif t.ideal_days_before == 0:
+            due = event_date
+        else:
+            due = event_date + timedelta(days=abs(t.ideal_days_before))
+
+        days_from_now = (due - today).days
+        is_urgent = days_from_now <= CRITICAL_PROXIMITY_DAYS and t.ideal_days_before >= 0
+        task_priority: TaskPriority = "critical" if (is_urgent and t.is_critical_path) else t.default_priority
+
+        milestones.append(
+            Milestone(
+                id=f"m-{idx + 1}",
+                due_date=due,
+                days_from_today=days_from_now,
+                task=t.task,
+                category=t.category,
+                priority=task_priority,
+                is_urgent=is_urgent,
+            )
+        )
+    return milestones
+
+
 def build_adaptive_timeline(request: PlanRequest, today: date) -> tuple[list[Milestone], list[str]]:
     """Construct an adaptive chronological milestone schedule.
 
@@ -176,6 +293,16 @@ def build_adaptive_timeline(request: PlanRequest, today: date) -> tuple[list[Mil
     - Long lead time (> 90 days): comfortable spacing.
     - Medium lead time (15 - 90 days): proportional scaling.
     - Short lead time (< 14 days): urgent compression with staged distribution across available days.
+
+    Args:
+        request: The validated user celebration request.
+        today: The reference date for planning calculations.
+
+    Returns:
+        A tuple of (sorted milestones list, list of advisory warnings).
+
+    Raises:
+        ValueError: If event date is in the past or exceeds maximum horizon.
     """
     days_until = (request.event_date - today).days
     warnings: list[str] = []
@@ -188,110 +315,22 @@ def build_adaptive_timeline(request: PlanRequest, today: date) -> tuple[list[Mil
     templates = TIMELINE_TEMPLATES[request.event_type]
     longest_ideal = max(t.ideal_days_before for t in templates)
 
-    milestones: list[Milestone] = []
-
     if days_until == 0:
         warnings.append("Event is happening TODAY! All critical preparation tasks are due immediately.")
-        for idx, t in enumerate(templates):
-            if t.ideal_days_before >= 0:
-                due = today
-                prio: TaskPriority = "critical" if t.is_critical_path else "high"
-            else:
-                due = today + timedelta(days=abs(t.ideal_days_before))
-                prio = "normal"
-            milestones.append(
-                Milestone(
-                    id=f"m-{idx + 1}",
-                    due_date=due,
-                    days_from_today=(due - today).days,
-                    task=t.task,
-                    category=t.category,
-                    priority=prio,
-                    is_urgent=(due == today),
-                )
-            )
-    elif days_until < 14:
+        milestones = _build_same_day_milestones(templates, today)
+    elif days_until < URGENT_TIMELINE_THRESHOLD_DAYS:
         warnings.append(
             f"Urgent timeline ({days_until} days to go): Tasks have been compressed into an accelerated track. "
             "Prioritize venue, catering, and core permits today!"
         )
-        # Distribute pre-event tasks across [0 .. days_until] to avoid overwhelming day 0
-        pre_event_templates = [t for t in templates if t.ideal_days_before > 0]
-        post_event_templates = [t for t in templates if t.ideal_days_before <= 0]
-
-        total_pre = len(pre_event_templates)
-        for idx, t in enumerate(pre_event_templates):
-            # Spread tasks across available days based on urgency ranking
-            day_offset = int((idx / max(1, total_pre - 1)) * max(0, days_until - 1))
-            due = today + timedelta(days=day_offset)
-            days_from_now = (due - today).days
-            prio: TaskPriority = "critical" if t.is_critical_path or days_from_now == 0 else t.default_priority
-            milestones.append(
-                Milestone(
-                    id=f"m-{idx + 1}",
-                    due_date=due,
-                    days_from_today=days_from_now,
-                    task=t.task,
-                    category=t.category,
-                    priority=prio,
-                    is_urgent=(days_from_now <= 2),
-                )
-            )
-
-        # Append event day & post-event tasks
-        offset_idx = len(pre_event_templates)
-        for idx, t in enumerate(post_event_templates):
-            if t.ideal_days_before == 0:
-                due = request.event_date
-                prio = "critical"
-            else:
-                due = request.event_date + timedelta(days=abs(t.ideal_days_before))
-                prio = t.default_priority
-            days_from_now = (due - today).days
-            milestones.append(
-                Milestone(
-                    id=f"m-{offset_idx + idx + 1}",
-                    due_date=due,
-                    days_from_today=days_from_now,
-                    task=t.task,
-                    category=t.category,
-                    priority=prio,
-                    is_urgent=(days_from_now == 0),
-                )
-            )
+        milestones = _build_urgent_milestones(templates, today, request.event_date, days_until)
     else:
-        # Standard or comfortable timeline with proportional scale
         scale = min(1.0, days_until / longest_ideal)
         if scale < 1.0:
             warnings.append(
                 f"Timeline adjusted for {days_until} days lead time: early milestones have been accelerated."
             )
-
-        for idx, t in enumerate(templates):
-            if t.ideal_days_before > 0:
-                scaled_offset = max(1, round(t.ideal_days_before * scale))
-                due = request.event_date - timedelta(days=scaled_offset)
-                due = max(due, today)  # Never schedule prior to today
-            elif t.ideal_days_before == 0:
-                due = request.event_date
-            else:
-                due = request.event_date + timedelta(days=abs(t.ideal_days_before))
-
-            days_from_now = (due - today).days
-            is_urgent = days_from_now <= 3 and t.ideal_days_before >= 0
-            prio = "critical" if (is_urgent and t.is_critical_path) else t.default_priority
-
-            milestones.append(
-                Milestone(
-                    id=f"m-{idx + 1}",
-                    due_date=due,
-                    days_from_today=days_from_now,
-                    task=t.task,
-                    category=t.category,
-                    priority=prio,
-                    is_urgent=is_urgent,
-                )
-            )
+        milestones = _build_proportional_milestones(templates, today, request.event_date, scale)
 
     # Sort strictly by due date, then by priority weight
     priority_order = {"critical": 0, "high": 1, "medium": 2, "normal": 3, "low": 4}

@@ -17,6 +17,8 @@ from .models import (
 )
 
 CONTINGENCY = "Contingency & Emergency Reserve"
+RUSH_LEAD_TIME_THRESHOLD_DAYS = 14
+TARGET_TOTAL_PERCENTAGE = 100
 
 
 @dataclass(frozen=True)
@@ -155,7 +157,7 @@ def compute_adjusted_splits(request: PlanRequest, days_until: int) -> tuple[dict
             )
 
     # Rule 3: Short lead times (< 14 days) incur rush fees
-    if days_until < 14:
+    if days_until < RUSH_LEAD_TIME_THRESHOLD_DAYS:
         moved = _shift_percentage_points(splits, profile.flex_category, CONTINGENCY, 3)
         if moved > 0:
             notes.append(
@@ -175,7 +177,7 @@ def allocate_budget_largest_remainder(budget: int, splits: dict[str, int], event
     3. sum(line.percent for line in lines) == 100.
     """
     total_pct = sum(splits.values())
-    if total_pct != 100:
+    if total_pct != TARGET_TOTAL_PERCENTAGE:
         raise ValueError(f"Category splits must sum to exactly 100%; received {total_pct}%")
 
     descriptions = BUDGET_PROFILES[event_type].category_descriptions

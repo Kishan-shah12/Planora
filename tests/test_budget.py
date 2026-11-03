@@ -160,5 +160,5 @@ def test_allocate_budget_largest_remainder_surplus_paise():
 
     splits = {"Venue & Catering": 33, "Decor & Styling": 33, "Photography & Video": 34}
     lines = allocate_budget_largest_remainder(1001, splits, "wedding")
-    assert sum(l.amount for l in lines) == 1001
-    assert sum(l.amount_paise for l in lines) == 100100
+    assert sum(line.amount for line in lines) == 1001
+    assert sum(line.amount_paise for line in lines) == 100100

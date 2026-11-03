@@ -61,7 +61,7 @@ def test_insights_service_graceful_fallback_on_exception(valid_birthday_request,
     """InsightsService catches provider exceptions seamlessly and returns fallback."""
 
     class FailingProvider:
-        def generate(self, req, core):
+        def generate(self, _req, _core):
             raise TimeoutError("Gemini API connection timed out")
 
     core = build_core_plan(valid_birthday_request, today)
@@ -103,7 +103,7 @@ def test_load_system_prompt_fallback(monkeypatch):
 
     from app.ai import load_system_prompt
 
-    monkeypatch.setattr(Path, "is_file", lambda self: False)
+    monkeypatch.setattr(Path, "is_file", lambda _self: False)
     prompt = load_system_prompt()
     assert "You are Planora's celebration planner" in prompt
 

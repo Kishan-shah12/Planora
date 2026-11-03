@@ -77,15 +77,15 @@ def test_sliding_window_rate_limiter():
 
 def test_clean_text_non_string():
     """clean_text handles None or non-string inputs safely."""
-    assert clean_text(None) == ""
-    assert clean_text(12345) == ""
+    assert clean_text(None) == ""  # type: ignore[arg-type]
+    assert clean_text(12345) == ""  # type: ignore[arg-type]
 
 
 def test_looks_like_injection_non_string():
     """looks_like_injection handles non-string and empty inputs."""
-    assert looks_like_injection(None) is False
+    assert looks_like_injection(None) is False  # type: ignore[arg-type]
     assert looks_like_injection("") is False
-    assert looks_like_injection(123) is False
+    assert looks_like_injection(123) is False  # type: ignore[arg-type]
 
 
 def test_rate_limiter_stale_sweep():

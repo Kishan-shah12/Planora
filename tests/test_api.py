@@ -231,7 +231,7 @@ def test_500_internal_server_error_handler(client, monkeypatch):
     """Unhandled server exceptions return consistent JSON error format with 500 status code."""
     from app import routes
 
-    def mock_build_core_plan(*args, **kwargs):
+    def mock_build_core_plan(*_args, **_kwargs):
         raise RuntimeError("Simulated database/internal crash")
 
     monkeypatch.setattr(routes, "build_core_plan", mock_build_core_plan)
@@ -285,7 +285,7 @@ def test_planning_constraint_generic_value_error(client, monkeypatch):
     """Generic ValueError in build_core_plan produces a 422 validation response."""
     from app import routes
 
-    def mock_build_core_plan(*args, **kwargs):
+    def mock_build_core_plan(*_args, **_kwargs):
         raise ValueError("Simulated general constraint violation")
 
     monkeypatch.setattr(routes, "build_core_plan", mock_build_core_plan)

@@ -148,7 +148,7 @@ def build_vendor_groups(event_type: str) -> list[VendorGroup]:
                 ],
             ),
         ]
-    elif event_type == "birthday":
+    if event_type == "birthday":
         return [
             VendorGroup(
                 vendor="Venue & Party Space",
@@ -239,101 +239,101 @@ def build_vendor_groups(event_type: str) -> list[VendorGroup]:
                 ],
             ),
         ]
-    else:  # community
-        return [
-            VendorGroup(
-                vendor="Venue, Civic Permissions & Licensing",
-                tasks=[
-                    VendorTask(
-                        id="v-c-1",
-                        vendor_category="Venue, Civic Permissions & Licensing",
-                        title="Obtain local municipal, society, and police permissions (NOC)",
-                        description="Submit event timeline, expected attendance numbers, and noise permit documentation early.",
-                        priority="high",
-                    ),
-                    VendorTask(
-                        id="v-c-2",
-                        vendor_category="Venue, Civic Permissions & Licensing",
-                        title="Coordinate commercial power sanction and backup diesel generator",
-                        description="Ensure audio, lighting, and food warmers do not trip local residential circuit breakers.",
-                        priority="high",
-                    ),
-                ],
-            ),
-            VendorGroup(
-                vendor="Inclusivity, Safety & First Aid",
-                tasks=[
-                    VendorTask(
-                        id="v-c-3",
-                        vendor_category="Inclusivity, Safety & First Aid",
-                        title="Verify step-free wheelchair ramps and priority seating for seniors",
-                        description="Ensure entrances, aisles, restrooms, and dining areas are fully accessible without barriers.",
-                        priority="high",
-                    ),
-                    VendorTask(
-                        id="v-c-4",
-                        vendor_category="Inclusivity, Safety & First Aid",
-                        title="Setup clearly marked First Aid medical kiosk with certified volunteer",
-                        description="Equip with ice packs, bandages, ORS rehydration salts, and verified nearby ambulance emergency numbers.",
-                        priority="high",
-                    ),
-                    VendorTask(
-                        id="v-c-5",
-                        vendor_category="Inclusivity, Safety & First Aid",
-                        title="Map emergency evacuation routes and post illuminated exit signs",
-                        description="Brief volunteer marshals on crowd flow, choke-point avoidance, and fire extinguisher stations.",
-                        priority="high",
-                    ),
-                ],
-            ),
-            VendorGroup(
-                vendor="Sound, AV & Stage Infrastructure",
-                tasks=[
-                    VendorTask(
-                        id="v-c-6",
-                        vendor_category="Sound, AV & Stage Infrastructure",
-                        title="Contract sound engineer, wireless microphones, and acoustic check",
-                        description="Schedule comprehensive audio test 2 hours before opening to prevent feedback and uneven coverage.",
-                        priority="high",
-                    ),
-                    VendorTask(
-                        id="v-c-7",
-                        vendor_category="Sound, AV & Stage Infrastructure",
-                        title="Erect stable stage riser, safety railings, and weather canopy",
-                        description="Inspect structural stability of stage and waterproof protection for sensitive electronic equipment.",
-                        priority="medium",
-                    ),
-                ],
-            ),
-            VendorGroup(
-                vendor="Volunteer Coordination & Hospitality",
-                tasks=[
-                    VendorTask(
-                        id="v-c-8",
-                        vendor_category="Volunteer Coordination & Hospitality",
-                        title="Assign functional leads for reception, crowd guidance, and dining",
-                        description="Equip volunteers with high-visibility badges/sashes, written shift schedules, and two-way walkies.",
-                        priority="high",
-                    ),
-                    VendorTask(
-                        id="v-c-9",
-                        vendor_category="Volunteer Coordination & Hospitality",
-                        title="Coordinate drinking water dispensers and eco-friendly waste bins",
-                        description="Provide clearly marked wet and dry waste stations and appoint a post-event clean-up squad.",
-                        priority="medium",
-                    ),
-                ],
-            ),
-            VendorGroup(
-                vendor="Publicity & Signage",
-                tasks=[
-                    VendorTask(
-                        id="v-c-10",
-                        vendor_category="Publicity & Signage",
-                        title="Mount directional entrance banners, schedule board, and sponsor boards",
-                        description="Position large-font schedule posters at eye level so attendees easily navigate program segments.",
-                        priority="medium",
-                    ),
-                ],
-            ),
-        ]
+    # community
+    return [
+        VendorGroup(
+            vendor="Venue, Civic Permissions & Licensing",
+            tasks=[
+                VendorTask(
+                    id="v-c-1",
+                    vendor_category="Venue, Civic Permissions & Licensing",
+                    title="Obtain local municipal, society, and police permissions (NOC)",
+                    description="Submit event timeline, expected attendance numbers, and noise permit documentation early.",
+                    priority="high",
+                ),
+                VendorTask(
+                    id="v-c-2",
+                    vendor_category="Venue, Civic Permissions & Licensing",
+                    title="Coordinate commercial power sanction and backup diesel generator",
+                    description="Ensure audio, lighting, and food warmers do not trip local residential circuit breakers.",
+                    priority="high",
+                ),
+            ],
+        ),
+        VendorGroup(
+            vendor="Inclusivity, Safety & First Aid",
+            tasks=[
+                VendorTask(
+                    id="v-c-3",
+                    vendor_category="Inclusivity, Safety & First Aid",
+                    title="Verify step-free wheelchair ramps and priority seating for seniors",
+                    description="Ensure entrances, aisles, restrooms, and dining areas are fully accessible without barriers.",
+                    priority="high",
+                ),
+                VendorTask(
+                    id="v-c-4",
+                    vendor_category="Inclusivity, Safety & First Aid",
+                    title="Setup clearly marked First Aid medical kiosk with certified volunteer",
+                    description="Equip with ice packs, bandages, ORS rehydration salts, and verified nearby ambulance emergency numbers.",
+                    priority="high",
+                ),
+                VendorTask(
+                    id="v-c-5",
+                    vendor_category="Inclusivity, Safety & First Aid",
+                    title="Map emergency evacuation routes and post illuminated exit signs",
+                    description="Brief volunteer marshals on crowd flow, choke-point avoidance, and fire extinguisher stations.",
+                    priority="high",
+                ),
+            ],
+        ),
+        VendorGroup(
+            vendor="Sound, AV & Stage Infrastructure",
+            tasks=[
+                VendorTask(
+                    id="v-c-6",
+                    vendor_category="Sound, AV & Stage Infrastructure",
+                    title="Contract sound engineer, wireless microphones, and acoustic check",
+                    description="Schedule comprehensive audio test 2 hours before opening to prevent feedback and uneven coverage.",
+                    priority="high",
+                ),
+                VendorTask(
+                    id="v-c-7",
+                    vendor_category="Sound, AV & Stage Infrastructure",
+                    title="Erect stable stage riser, safety railings, and weather canopy",
+                    description="Inspect structural stability of stage and waterproof protection for sensitive electronic equipment.",
+                    priority="medium",
+                ),
+            ],
+        ),
+        VendorGroup(
+            vendor="Volunteer Coordination & Hospitality",
+            tasks=[
+                VendorTask(
+                    id="v-c-8",
+                    vendor_category="Volunteer Coordination & Hospitality",
+                    title="Assign functional leads for reception, crowd guidance, and dining",
+                    description="Equip volunteers with high-visibility badges/sashes, written shift schedules, and two-way walkies.",
+                    priority="high",
+                ),
+                VendorTask(
+                    id="v-c-9",
+                    vendor_category="Volunteer Coordination & Hospitality",
+                    title="Coordinate drinking water dispensers and eco-friendly waste bins",
+                    description="Provide clearly marked wet and dry waste stations and appoint a post-event clean-up squad.",
+                    priority="medium",
+                ),
+            ],
+        ),
+        VendorGroup(
+            vendor="Publicity & Signage",
+            tasks=[
+                VendorTask(
+                    id="v-c-10",
+                    vendor_category="Publicity & Signage",
+                    title="Mount directional entrance banners, schedule board, and sponsor boards",
+                    description="Position large-font schedule posters at eye level so attendees easily navigate program segments.",
+                    priority="medium",
+                ),
+            ],
+        ),
+    ]

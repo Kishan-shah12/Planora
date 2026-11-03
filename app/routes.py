@@ -6,6 +6,7 @@ import logging
 from datetime import date
 
 from flask import Blueprint, Response, current_app, jsonify, render_template, request
+from flask.typing import ResponseReturnValue
 from pydantic import ValidationError
 
 from .ai import GeminiProvider, InsightsService
@@ -28,6 +29,7 @@ _insights_service: InsightsService | None = None
 
 
 def get_insights_service() -> InsightsService:
+    """Retrieve or lazily initialize the singleton AI insights provider service."""
     global _insights_service
     if _insights_service is None:
         api_key = current_app.config.get("GEMINI_API_KEY", "")
@@ -44,7 +46,7 @@ def index() -> str:
 
 
 @bp.route("/api/health")
-def health() -> Response:
+def health() -> ResponseReturnValue:
     """Health status endpoint."""
     return jsonify({"status": "healthy", "service": "planora", "version": "2.0.0"})
 
@@ -59,8 +61,23 @@ def _is_untrusted_cross_origin() -> bool:
     return origin_host != clean_host and origin_host not in {"localhost", "127.0.0.1", "testserver"}
 
 
+def _parse_plan_request() -> tuple[PlanRequest | None, ResponseReturnValue | None]:
+    """Parse and validate incoming plan request JSON body."""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return None, (jsonify({"error": "Invalid request body; JSON object expected."}), 400)
+
+    try:
+        return PlanRequest.model_validate(data), None
+    except ValidationError as exc:
+        details = [
+            {"field": str(err["loc"][0]) if err["loc"] else "body", "message": err["msg"]} for err in exc.errors()
+        ]
+        return None, (jsonify({"error": "Validation failed", "details": details}), 422)
+
+
 @bp.route("/api/plan", methods=["POST"])
-def create_plan() -> tuple[Response, int]:
+def create_plan() -> ResponseReturnValue:
     """Generate a celebration plan combining deterministic calculations with AI insights."""
     if _is_untrusted_cross_origin():
         return jsonify({"error": "Forbidden cross-origin request."}), 403
@@ -77,17 +94,10 @@ def create_plan() -> tuple[Response, int]:
         resp.headers["Retry-After"] = str(retry_after)
         return resp, 429
 
-    data = request.get_json(silent=True)
-    if not isinstance(data, dict):
-        return jsonify({"error": "Invalid request body; JSON object expected."}), 400
-
-    try:
-        plan_req = PlanRequest.model_validate(data)
-    except ValidationError as exc:
-        details = [
-            {"field": str(err["loc"][0]) if err["loc"] else "body", "message": err["msg"]} for err in exc.errors()
-        ]
-        return jsonify({"error": "Validation failed", "details": details}), 422
+    plan_req, parse_error = _parse_plan_request()
+    if parse_error is not None:
+        return parse_error
+    assert plan_req is not None
 
     today = date.today()
     try:
@@ -127,7 +137,7 @@ def create_plan() -> tuple[Response, int]:
 
 
 @bp.route("/api/budget/recalculate", methods=["POST"])
-def recalculate_budget() -> tuple[Response, int]:
+def recalculate_budget() -> ResponseReturnValue:
     """Recalculate budget ledger and overrun detection given actual vendor costs."""
     if _is_untrusted_cross_origin():
         return jsonify({"error": "Forbidden cross-origin request."}), 403
@@ -153,7 +163,7 @@ def recalculate_budget() -> tuple[Response, int]:
 
 
 @bp.route("/api/export/ics", methods=["POST"])
-def export_ics() -> Response:
+def export_ics() -> ResponseReturnValue:
     """Generate and download a valid RFC 5545 iCalendar stream."""
     data = request.get_json(silent=True)
     if not isinstance(data, dict):

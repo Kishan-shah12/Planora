@@ -26,15 +26,15 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     app.register_blueprint(bp)
 
     @app.errorhandler(413)
-    def handle_payload_too_large(e: Any):
+    def handle_payload_too_large(_err: Any) -> tuple[Any, int]:
         return jsonify({"error": "Request payload too large (maximum allowed size is 32 KB)."}), 413
 
     @app.errorhandler(404)
-    def handle_not_found(e: Any):
+    def handle_not_found(_err: Any) -> tuple[Any, int]:
         return jsonify({"error": "Resource not found."}), 404
 
     @app.errorhandler(500)
-    def handle_internal_error(e: Any):
+    def handle_internal_error(_err: Any) -> tuple[Any, int]:
         return jsonify({"error": "An unexpected server error occurred. Please try again."}), 500
 
     return app
